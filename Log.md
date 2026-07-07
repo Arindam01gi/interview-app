@@ -168,3 +168,35 @@ Built a modular, responsive, fully-typed AI Chat Application with the following 
 ## Known limitations / next steps
 - Export conversation to JSON/Markdown.
 - Theme toggle (light/dark) — stretch goal.
+
+---
+
+# Development Log — Speech-to-Text (Voice Input)
+
+## Date/Time
+- 2026-07-07 16:36
+
+## What I built
+- Safely integrated Speech-to-Text capability in the chat input using the native Web Speech API (`SpeechRecognition`).
+- Extracted Speech Recognition handling into a standalone [VoiceInput.tsx](file:///c:/Users/ARINDAM/interview-app/components/chat/VoiceInput.tsx) component for modularity.
+- Added a microphone toggle button to the chat bar that switches between recording and idle states.
+- Created visual listening indicator (pulsing mic icon, red highlight, placeholder text changes to "Listening...").
+- Handled inline speech error messages (e.g. microphone permission denied, silence timeout/no-speech) using temporary auto-dismiss alerts above the text input.
+- Added a safe wrapper utility `utils/SpeechRecognition.ts` to detect Web Speech API capabilities without breaking SSR or hydration in Next.js.
+
+## How
+- Created helper function `isSpeechRecognitionSupported` to check if `SpeechRecognition` or `webkitSpeechRecognition` is defined in `window`.
+- Wired up a single-shot recording flow inside `components/chat/ChatInput.tsx` using `onresult`, `onerror`, and `onend` event handlers.
+- When transcription succeeds, text is appended to the input buffer, allowing the user to review and edit before sending.
+- Handled unmount safety by aborting recognition if active.
+
+## Packages used
+- **None** (Built strictly using browser-native Web Speech API).
+
+## Decisions/tradeoffs
+- **Speech recognition behavior**: We append to the current input string instead of auto-sending. This lets the user inspect the text and correct any spelling/recognition errors before committing.
+- **Auto-dismissing alerts**: Speech errors are displayed in a clean, non-disruptive floating tooltip above the input field that fades after 4 seconds to prevent blocking UI real-estate.
+
+## Known limitations / next steps
+- Browser support: Firefox has limited default support for Web Speech API compared to Chromium-based browsers (Chrome/Edge/Safari).
+

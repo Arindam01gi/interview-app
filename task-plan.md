@@ -31,10 +31,15 @@ Add 3 new features to the existing AI-powered chat app
 - [x] Implement filter logic across session titles + message content
 - [ ] Test: search returns correct matches, clears properly
 
-### 4. Theme toggle (light/dark) — stretch goal
-- [ ] Add toggle UI
-- [ ] Persist preference to localStorage
-- [ ] Apply theme on load (avoid flash of wrong theme)
+### 4. Speech-to-Text (voice input for questions)
+- [x] Check browser support: use Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`) — no package needed, built into Chrome/Edge
+- [x] Add mic button next to chat input
+- [x] On click: start `SpeechRecognition`, show listening indicator (pulsing icon/animation)
+- [x] On result: populate transcribed text into chat input field (don't auto-send — let user review/edit first)
+- [x] Handle `onerror` (no mic permission, no speech detected, network issue) — show inline message, don't crash
+- [x] Handle `onend` — reset mic button state if recognition stops (silence timeout, user stops talking)
+- [x] Add stop/cancel button while listening
+- [x] Test: mic permission prompt, transcription accuracy on a full sentence, error state (deny permission), stop mid-recording
 
 ---
 
