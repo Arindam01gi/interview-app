@@ -1,24 +1,30 @@
 # AI Chat App — Feature Addition Plan
 
 ## Task
-Add 3-4 new features to the existing AI-powered chat app (built with Antigravity), ship by tomorrow, and maintain a development log documenting what was built, how, and what packages were used. Data must persist via localStorage.
+Add 3 new features to the existing AI-powered chat app 
 
 ---
 
 ## Features to Build
 
 ### 1. Multi-session chat history
-- [ ] Design data schema: `{ sessions: [{ id, title, messages, createdAt }], activeSessionId }`
-- [ ] Build sidebar UI to list/switch/create sessions
-- [ ] Wire up localStorage load on app init
-- [ ] Wire up localStorage save on state change (debounced)
-- [ ] Test: refresh page, confirm history persists
+- [x] Design data schema: `{ sessions: [{ id, title, messages, createdAt }], activeSessionId }`
+- [x] Build sidebar UI to list/switch/create sessions
+- [x] Wire up localStorage load on app init
+- [x] Wire up localStorage save on state change (debounced)
+- [x] Test: refresh page, confirm history persists
 
-### 2. Export conversation
-- [ ] Add export button (per session)
-- [ ] Implement JSON export
-- [ ] Implement Markdown export (optional stretch)
-- [ ] Test: exported file opens correctly and matches chat content
+### 2. User authentication (sign up → sign in → chat)
+- [x] Build Sign Up page (name/email + password fields)
+- [x] On sign up: create user record in localStorage `users` list (hash password, never store plaintext)
+- [x] Build Sign In page (validate against stored user record)
+- [x] On successful sign in: store `currentUser` (id/email only, no password) in localStorage or sessionStorage
+- [x] Add route guard: unauthenticated users → redirect to Sign In; authenticated → redirect to Chat
+- [x] Namespace chat data per user: storage key becomes `chat_app_v1_<userId>` instead of one global key
+- [x] On sign in: load only that user's sessions; on sign up: initialize empty session list for new user
+- [x] Add Logout: clears `currentUser` only (chat data stays saved under that user's key for next login)
+- [x] Test: Sign up User A, add chats → logout → sign up/sign in User B → confirm User B sees empty chat, not User A's
+- [x] Test: log back in as User A → confirm their chat history is still there
 
 ### 3. Search/filter chat history
 - [ ] Add search input (sidebar or top bar)
@@ -38,7 +44,13 @@ Add 3-4 new features to the existing AI-powered chat app (built with Antigravity
 - Debounce writes (~300ms) to avoid excessive writes on fast typing
 - Keep schema flat and predictable for easy migration later
 
----
+## Per-User Data Separation (with auth)
+- `users` key: array of `{ id, email, passwordHash }` — the "user table"
+- `currentUser` key: just the logged-in user's id/email (session pointer, no password)
+- Chat data key becomes **user-specific**: `chat_app_v1_<userId>` instead of one shared key
+- On login: read `chat_app_v1_<userId>` to load that user's sessions
+- On logout: only clear `currentUser`; leave `chat_app_v1_<userId>` intact so data is there next login
+- Caveat to state clearly in your log/demo: this is **client-side-only auth** — password "hashing" in the browser (e.g. simple hash function) is for demo structure, not real security; a real app would verify credentials server-side and never trust the client to store or check passwords
 
 ## Log File Structure (fill in per feature as you build)
 

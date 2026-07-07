@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Message, ChatSession } from "@/types/chat";
+import { useAuth } from "@/context/AuthContext";
 
 interface ChatContextType {
   sessions: ChatSession[];
@@ -19,20 +20,44 @@ interface ChatContextType {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useAuth();
+  const userId = currentUser?.id || "";
+
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load sessions from LocalStorage on mount
+  // Load sessions and active ID from LocalStorage when user changes
   useEffect(() => {
+    if (!userId) {
+      setSessions([]);
+      setActiveSessionId(null);
+      return;
+    }
+
     try {
-      const stored = localStorage.getItem("chat_sessions");
-      if (stored) {
-        const parsed = JSON.parse(stored) as ChatSession[];
-        setSessions(parsed);
-        if (parsed.length > 0) {
-          setActiveSessionId(parsed[0].id);
+      const storedSessions = localStorage.getItem(`chat_app_v1_${userId}`);
+      const storedActiveId = localStorage.getItem(`chat_active_id_v1_${userId}`);
+
+      let loadedSessions: ChatSession[] = [];
+      let loadedActiveId: string | null = null;
+
+      if (storedSessions) {
+        loadedSessions = JSON.parse(storedSessions) as ChatSession[];
+      }
+
+      if (storedActiveId) {
+        loadedActiveId = storedActiveId;
+      }
+
+      if (loadedSessions.length > 0) {
+        setSessions(loadedSessions);
+        // Ensure active ID exists in loaded sessions, otherwise default to first
+        if (loadedActiveId && loadedSessions.some(s => s.id === loadedActiveId)) {
+          setActiveSessionId(loadedActiveId);
+        } else {
+          setActiveSessionId(loadedSessions[0].id);
         }
       } else {
         // Create an initial session if none exist
@@ -47,16 +72,27 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setActiveSessionId(initialId);
       }
     } catch (err) {
-      console.error("Failed to load sessions from localStorage:", err);
+      console.error("Failed to load state from localStorage:", err);
     }
-  }, []);
+  }, [userId]);
 
-  // Save sessions to LocalStorage whenever they change
+  // Save sessions and active session ID to LocalStorage with 300ms debounce
   useEffect(() => {
-    if (sessions.length > 0) {
-      localStorage.setItem("chat_sessions", JSON.stringify(sessions));
-    }
-  }, [sessions]);
+    if (!userId || sessions.length === 0) return;
+
+    const handler = setTimeout(() => {
+      try {
+        localStorage.setItem(`chat_app_v1_${userId}`, JSON.stringify(sessions));
+        if (activeSessionId) {
+          localStorage.setItem(`chat_active_id_v1_${userId}`, activeSessionId);
+        }
+      } catch (err) {
+        console.error("Failed to write state to localStorage (possibly quota exceeded/private browsing):", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [sessions, activeSessionId, userId]);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || null;
 
@@ -140,7 +176,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (s.id === currentSessionId) {
         updatedMessages = [...s.messages, userMessage];
         // Auto update session title if it was the default one
-        const title = s.title === "New Conversation" 
+        const title = s.title === "New Conversation"
           ? content.slice(0, 30) + (content.length > 30 ? "..." : "")
           : s.title;
         return {
@@ -170,7 +206,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      
+
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
