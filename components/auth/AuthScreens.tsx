@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 export default function AuthScreens() {
-  const { signIn, signUp, error: authError } = useAuth();
+  const { signIn, signUp, error: authError, clearError } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -58,6 +58,7 @@ export default function AuthScreens() {
   const handleToggle = () => {
     setIsLogin(!isLogin);
     setValidationError(null);
+    clearError(); // clear auth error from context
     setName("");
     setEmail("");
     setPassword("");

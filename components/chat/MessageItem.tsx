@@ -2,12 +2,14 @@
 
 import React from "react";
 import { Message } from "@/types/chat";
+import { useAuth } from "@/context/AuthContext";
 
 interface MessageItemProps {
   message: Message;
 }
 
 export default function MessageItem({ message }: MessageItemProps) {
+  const { currentUser } = useAuth();
   const isUser = message.role === "user";
 
   // Simple formatting helper to handle basic code blocks and line breaks
@@ -100,7 +102,7 @@ export default function MessageItem({ message }: MessageItemProps) {
             : "bg-zinc-800 border border-zinc-700 text-indigo-400"
         }`}
       >
-        {isUser ? "U" : "AI"}
+        {isUser ? (currentUser?.name?.charAt(0).toUpperCase() || "U") : "AI"}
       </div>
 
       {/* Bubble Message */}

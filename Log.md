@@ -115,6 +115,25 @@ Built a modular, responsive, fully-typed AI Chat Application with the following 
 
 ---
 
+# Development Log — Auth Error Handling Improvements
+
+## Date/Time
+- 2026-07-07 16:43
+
+## What I built
+- Fixed a bug where authentication errors (e.g. invalid credentials) persist when switching between the Sign In and Sign Up page views.
+- Implemented a `clearError` method in `AuthContext` to reset auth error states.
+- Cleaned the error state upon toggle screen clicks in the login layout component.
+- Changed user's message avatar from a static 'U' to dynamically display the first letter of the authenticated user's name.
+
+## How
+- Added `clearError: () => void` to the `AuthContextType` interface and implemented it in `AuthProvider` as `() => setError(null)`.
+- Destructured `clearError` in `AuthScreens.tsx` and invoked it inside the `handleToggle` screen function.
+- Imported `useAuth` inside `MessageItem.tsx` and updated the text container from `{isUser ? "U" : "AI"}` to `{isUser ? (currentUser?.name?.charAt(0).toUpperCase() || "U") : "AI"}`.
+
+
+---
+
 # Development Log — Manual Verification: Auth & Password Toggle
 
 ## Date/Time

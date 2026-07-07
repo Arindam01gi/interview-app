@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (name: string, email: string, passwordHash: string) => Promise<boolean>;
   signIn: (email: string, passwordHash: string) => Promise<boolean>;
   logout: () => void;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   }, []);
+
+  const clearError = () => setError(null);
 
   const signUp = async (name: string, email: string, passwordRaw: string): Promise<boolean> => {
     setError(null);
@@ -163,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signIn,
         logout,
+        clearError,
       }}
     >
       {children}
