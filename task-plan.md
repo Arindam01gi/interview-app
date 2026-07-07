@@ -27,8 +27,8 @@ Add 3 new features to the existing AI-powered chat app
 - [x] Test: log back in as User A → confirm their chat history is still there
 
 ### 3. Search/filter chat history
-- [ ] Add search input (sidebar or top bar)
-- [ ] Implement filter logic across session titles + message content
+- [x] Add search input (sidebar or top bar)
+- [x] Implement filter logic across session titles + message content
 - [ ] Test: search returns correct matches, clears properly
 
 ### 4. Theme toggle (light/dark) — stretch goal

@@ -136,3 +136,35 @@ Built a modular, responsive, fully-typed AI Chat Application with the following 
 - Search/filter chat history feature (next to build).
 - Export conversation to JSON/Markdown.
 - Theme toggle (light/dark) — stretch goal.
+
+---
+
+# Development Log — Search/Filter Chat History
+
+## Date/Time
+- 2026-07-07 16:13
+
+## What I built
+- Added a live search input at the top of the sidebar (below the header) that filters visible sessions in real time.
+- Filter checks both **session title** and **any message content** (case-insensitive).
+- When a match is found in message content (not the title), a short contextual snippet is shown under the session title.
+- The counter label switches from `History (N)` to `Results (N)` while searching.
+- A clear (×) button appears inside the search field when a query is active, resetting the filter instantly.
+- Empty-state message is context-aware: shows "No chats matching …" vs "No chat history yet."
+
+## How
+- Added `searchQuery` state to `Sidebar.tsx`.
+- Used `useMemo` to derive `filteredSessions` from `sessions` + `searchQuery`, ensuring no unnecessary re-renders.
+- Snippet extraction uses `String.indexOf` for exact position, slicing ±20/30 chars around the match with ellipsis guards.
+- No new packages installed — pure React + native string methods.
+
+## Packages used
+- **None**.
+
+## Decisions/tradeoffs
+- **`useMemo` over `useEffect`**: Derived state via `useMemo` is simpler and avoids extra renders compared to storing a separate filtered array in state.
+- **Message snippet**: Showing the first matching message line gives context to the user without navigating to the session.
+
+## Known limitations / next steps
+- Export conversation to JSON/Markdown.
+- Theme toggle (light/dark) — stretch goal.
